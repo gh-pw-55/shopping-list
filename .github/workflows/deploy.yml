@@ -1,4 +1,4 @@
-name: Deploy Laravel Sail to DigitalOcean
+name: Deploy Laravel to DigitalOcean
 
 on:
   push:
@@ -16,20 +16,27 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Deploy with Laravel Sail
+      - name: Deploy Laravel App
         run: |
           sshpass -p "${{ secrets.DO_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} << 'EOF'
             cd /var/www/shopping-list || exit 1
 
-            # Pull latest code
+            echo "Pulling latest code"
             git pull origin main
 
-            # Ensure dependencies are up to date
-            composer install --no-interaction --prefer-dist --optimize-autoloader
-            php artisan config:clear
-            php artisan cache:clear
+            echo "Build container"
+            docker compose build --no-cache
+            docker compose up -d
 
-            # Build & restart using Sail
-            ./vendor/bin/sail build --no-cache
-            ./vendor/bin/sail up -d
+            echo "Installing PHP dependencies"
+            docker compose exec -T app composer install --no-interaction --prefer-dist --optimize-autoloader
+
+            echo "Running migrations"
+            docker compose exec -T app php artisan migrate --force
+
+            echo "Clearing caches"
+            docker compose exec -T app php artisan config:clear
+            docker compose exec -T app php artisan cache:clear
+            docker compose exec -T app php artisan route:clear
+            docker compose exec -T app php artisan view:clear
           EOF
