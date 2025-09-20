@@ -19,7 +19,7 @@ jobs:
       - name: Deploy with Laravel Sail
         run: |
           sshpass -p "${{ secrets.DO_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} << 'EOF'
-            cd /var/www/myapp || exit 1
+            cd /var/www/shopping-list || exit 1
 
             # Pull latest code
             git pull origin main
