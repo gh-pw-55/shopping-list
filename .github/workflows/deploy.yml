@@ -1,0 +1,35 @@
+name: Deploy Laravel Sail to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Deploy with Laravel Sail
+        run: |
+          sshpass -p "${{ secrets.DO_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} << 'EOF'
+            cd /var/www/myapp || exit 1
+
+            # Pull latest code
+            git pull origin main
+
+            # Ensure dependencies are up to date
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            php artisan config:clear
+            php artisan cache:clear
+
+            # Build & restart using Sail
+            ./vendor/bin/sail build --no-cache
+            ./vendor/bin/sail up -d
+          EOF
