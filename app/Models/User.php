@@ -49,6 +49,6 @@ class User extends Authenticatable
 
     public function groceryLists(): HasMany
     {
-        return $this->
+        return $this->hasMany(GroceryList::class);
     }
 }
