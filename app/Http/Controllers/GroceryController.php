@@ -31,16 +31,23 @@ class GroceryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
-            'quantity' => 'required|int',
+            'name' => ['required', 'string', 'max:255', function ($attribute, $value, $fail) use ($request) {
+                $exists = Grocery::where('grocery_list_id', $request->grocery_list_id)
+                    ->where('name', $value)
+                    ->exists();
+                if ($exists) {
+                    $fail('This item already exists in your grocery list.');
+                }
+            }],
+            'quantity' => 'required|int|min:1',
             'grocery_list_id' => 'required|exists:groceries_lists,id'
+
         ]);
 
         $grocery = new Grocery($request->only(['name', 'quantity', 'grocery_list_id']));
         $this->authorize('create', $grocery);
 
         $grocery->save();
-
         return back()->with('success', 'Item added successfully!');
     }
 

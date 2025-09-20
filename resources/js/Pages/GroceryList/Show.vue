@@ -42,6 +42,9 @@
                 <div v-if="hasSuccess" class="bg-green-100 text-green-700 p-6 rounded fixed top-1/3 right-6">
                     {{ flash.success }}
                 </div>
+                <div v-if="addGroceryItemForm.hasErrors" class="bg-red-100 text-red-700 p-6 rounded fixed top-1/3 right-6">
+                    {{ addGroceryItemForm.errors.name }}
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
@@ -117,6 +120,9 @@ const submit = () => {
         },
         onSuccess: (resp) => {
             groceries.data = [...resp.props.data.groceries]
+        },
+        onError: (error) => {
+            console.log('err on', error, addGroceryItemForm)
         }
     });
 }

@@ -16,6 +16,8 @@
                     <div class="p-6 text-gray-900" v-for="item in data" :key="item.id">
                         <a :href="`/grocery-lists/${item.id}`">{{ item.title }}</a>
                     </div>
+
+                
                 </div>
             </div>
         </div>
