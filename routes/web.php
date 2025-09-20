@@ -3,6 +3,7 @@
 use App\Http\Controllers\GroceryController;
 use App\Http\Controllers\GroceryListController;
 use App\Http\Controllers\ProfileController;
+use App\Models\GroceryList;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,6 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/grocery-lists', [GroceryListController::class, 'index'])->name('grocery-list.index');
     Route::get('/grocery-lists/{id}', [GroceryListController::class, 'show'])->name('grocery-list.show');
     Route::post('/grocery-lists', [GroceryListController::class, 'store'])->name('grocery-list.store');
+
+    Route::patch('/grocery-lists/update-order/{grocery}', [GroceryListController::class, 'updateOrder'])->name('grocery-list.update-order');
 
     Route::post('/grocery', [GroceryController::class, 'store'])->name('grocery.store');
     Route::delete('/grocery/{grocery}', [GroceryController::class, 'destroy'])

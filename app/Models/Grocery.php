@@ -12,7 +12,7 @@ class Grocery extends Model
 
     protected $table = 'groceries';
 
-    protected $fillable = ['name', 'quantity', 'grocery_list_id', 'is_completed'];
+    protected $fillable = ['name', 'quantity', 'grocery_list_id', 'is_completed', 'position'];
 
     public function groceryList(): BelongsTo
     {

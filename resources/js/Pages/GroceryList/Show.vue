@@ -6,9 +6,10 @@
                     {{ data.groceryList.title }}
                 </h2>
                 <div class="flex flex-col gap-4 ">
-                    <template v-for="(grocery, key) in groceries.data" :key="grocery.id">
-                        <ListItem :grocery="grocery" @deleteItem="deleteGroceryItem"
-                            @toggleIsCompleted="toggleCompleted" />
+                    <template v-for="(grocery, index) in groceries.data" :key="grocery.id">
+                        <ListItem draggable="true" :grocery="grocery" @toggleIsCompleted="toggleCompleted"
+                            @deleteItem="deleteGroceryItem" @drop="onDrop(index)" @dragstart="onDragStart(index)"
+                            @dragover.prevent />
                     </template>
 
                     <div class="pt-6 text-white">
@@ -42,7 +43,8 @@
                 <div v-if="hasSuccess" class="bg-green-100 text-green-700 p-6 rounded fixed top-1/3 right-6">
                     {{ flash.success }}
                 </div>
-                <div v-if="addGroceryItemForm.hasErrors" class="bg-red-100 text-red-700 p-6 rounded fixed top-1/3 right-6">
+                <div v-if="addGroceryItemForm.hasErrors"
+                    class="bg-red-100 text-red-700 p-6 rounded fixed top-1/3 right-6">
                     {{ addGroceryItemForm.errors.name }}
                 </div>
             </div>
@@ -66,6 +68,7 @@ const props = defineProps({
     }
 })
 
+
 const addGroceryItemForm = useForm({
     name: '',
     quantity: 1,
@@ -74,6 +77,7 @@ const addGroceryItemForm = useForm({
 
 const groceryName = ref(null);
 const groceryQuantity = ref(null);
+const dragIndex = ref(null);
 
 const groceries = reactive({
     data: props.data.groceryList.groceries
@@ -89,7 +93,7 @@ const disableSave = computed(() => {
     }
 
     return false;
-})
+});
 
 const deleteGroceryItem = (item) => {
     if (confirm('Are you sure you want to remove this item?')) {
@@ -126,4 +130,24 @@ const submit = () => {
         }
     });
 }
+
+const onDragStart = (index) => {
+    dragIndex.value = index;
+
+}
+
+const onDrop = (dropIndex) => {
+    const draggedItem = groceries.data[dragIndex.value];
+
+    groceries.data.splice(dragIndex.value, 1);
+
+    groceries.data.splice(dropIndex, 0, draggedItem);
+
+    dragIndex.value = null;
+
+    router.patch(route('grocery-list.update-order', props.data.groceryList.id), {
+        order: groceries.data,
+    });
+}
+
 </script>

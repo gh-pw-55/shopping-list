@@ -98,4 +98,9 @@ class GroceryController extends Controller
 
         return back()->with('success', 'Item removed successfully!');
     }
+
+    public function updateOrder(Type $args): void
+    {
+        
+    }
 }

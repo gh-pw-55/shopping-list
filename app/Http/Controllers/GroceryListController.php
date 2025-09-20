@@ -6,6 +6,7 @@ use App\Models\GroceryList;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Grocery;
 
 class GroceryListController extends Controller
 {
@@ -47,8 +48,16 @@ class GroceryListController extends Controller
         return back()->with('success', 'List added successfully!');
     }
 
-    public function delete()
+    public function updateOrder(Request $request, GroceryList $groceryList)
     {
-        
+        $newGrocerList = $request->input('order', []);
+
+        foreach ($newGrocerList as $key => $groceryItem) {
+            $groceryItem['position'] = $key + 1;
+
+            Grocery::where('id', $groceryItem['id'])->update(['position' => $key + 1]);
+        }
+
+        return redirect()->back()->with('success', 'Order updated!');
     }
 }

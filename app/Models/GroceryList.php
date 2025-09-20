@@ -22,6 +22,6 @@ class GroceryList extends Model
 
     public function groceries(): HasMany
     {
-        return $this->hasMany(Grocery::class, 'grocery_list_id', 'id');
+        return $this->hasMany(Grocery::class, 'grocery_list_id', 'id')->orderBy('position', 'asc');
     }
 }
