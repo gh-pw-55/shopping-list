@@ -6,8 +6,9 @@
                     {{ data.groceryList.title }}
                 </h2>
                 <div class="flex flex-col gap-4 ">
-                    <template v-for="grocery in data.groceryList.groceries" :key="grocery.id">
-                        <ListItem :grocery="grocery" @deleteItem="deleteGroceryItem"/>
+                    <template v-for="(grocery, key) in groceries.data" :key="grocery.id">
+                        <ListItem :grocery="grocery" @deleteItem="deleteGroceryItem"
+                            @toggleIsCompleted="toggleCompleted" />
                     </template>
 
                     <div class="pt-6 text-white">
@@ -30,7 +31,8 @@
 
                         <div class="py-2">
 
-                            <PrimaryButton class="py-2 px-4 text-white rounded bg-red-600 hover:bg-red-800">
+                            <PrimaryButton :disabled="disableSave"
+                                class="py-2 px-4 text-white rounded bg-red-600 hover:bg-red-800">
                                 Add Item
                             </PrimaryButton>
                         </div>
@@ -51,7 +53,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 const page = usePage();
 
@@ -70,23 +72,52 @@ const addGroceryItemForm = useForm({
 const groceryName = ref(null);
 const groceryQuantity = ref(null);
 
+const groceries = reactive({
+    data: props.data.groceryList.groceries
+})
+
 const flash = computed(() => page.props.flash)
 
 const hasSuccess = computed(() => flash.value && 'success' in flash.value && flash.value.success)
+
+const disableSave = computed(() => {
+    if (addGroceryItemForm.name === '') {
+        return true;
+    }
+
+    return false;
+})
 
 const deleteGroceryItem = (item) => {
     if (confirm('Are you sure you want to remove this item?')) {
         router.delete(route('groceries.destroy', item.id), {
             preserveScroll: true,
+            onSuccess: (resp) => {
+                groceries.data = [...resp.props.data.groceries]
+            }
         })
     }
 }
 
+const toggleCompleted = (checkVal, groceryItem) => {
+    groceryItem.is_completed = checkVal
+
+    router.patch(route('groceries.update', groceryItem.id), {
+        is_completed: groceryItem.is_completed,
+    }, {
+        preserveScroll: true,
+    });
+}
+
 const submit = () => {
-    addGroceryItemForm.post(route('grocery.store', {
-        onFinish: (resp) => {
-            addGroceryItemForm.reset('name', 'quantity')
+    addGroceryItemForm.post(route('grocery.store'), {
+        onFinish: () => {
+            addGroceryItemForm.name = '';
+            addGroceryItemForm.quantity = 1;
+        },
+        onSuccess: (resp) => {
+            groceries.data = [...resp.props.data.groceries]
         }
-    }));
+    });
 }
 </script>

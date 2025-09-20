@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Grocery;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Inertia\Inertia;
 
 class GroceryController extends Controller
 {
@@ -31,14 +30,12 @@ class GroceryController extends Controller
      */
     public function store(Request $request)
     {
-        // check that the user belongs to the grocery list.
         $request->validate([
             'name' => 'required|string',
             'quantity' => 'required|int',
             'grocery_list_id' => 'required|exists:groceries_lists,id'
         ]);
 
-        // Authorize before saving
         $grocery = new Grocery($request->only(['name', 'quantity', 'grocery_list_id']));
         $this->authorize('create', $grocery);
 
@@ -68,7 +65,18 @@ class GroceryController extends Controller
      */
     public function update(Request $request, Grocery $grocery)
     {
-        //
+        $this->authorize('create', $grocery);
+
+        // only interested in updating the iscompleted val right now.
+        $validation = $request->validate([
+            'is_completed' => 'required|boolean',
+        ]);
+
+        $grocery->update($validation);
+        $grocery->refresh();
+
+        $completedString = "$grocery->name is updated";
+        return back()->with('success', $completedString);
     }
 
     /**
