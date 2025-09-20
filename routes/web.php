@@ -23,6 +23,7 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/grocery-lists', [GroceryListController::class, 'index'])->name('grocery-list.index');
     Route::get('/grocery-lists/{id}', [GroceryListController::class, 'show'])->name('grocery-list.show');
+    Route::post('/grocery-lists', [GroceryListController::class, 'store'])->name('grocery-list.store');
 
     Route::post('/grocery', [GroceryController::class, 'store'])->name('grocery.store');
     Route::delete('/grocery/{grocery}', [GroceryController::class, 'destroy'])
