@@ -32,9 +32,9 @@
                         </div>
 
                         <div class="py-2">
-                            <InputLabel for="grocery_price" value="Price" />
+                            <InputLabel for="grocery_price" value="Unit Price (£)" />
                             <TextInput id="grocery_price" v-model="addGroceryItemForm.price"
-                                type="number" class="mt-1 block w-full" />
+                                type="number" min="0" step="0.01" class="mt-1 block w-full" />
                         </div>
 
                         <div class="py-2">

@@ -31,7 +31,7 @@ class GroceryController extends Controller
             }],
             'quantity' => 'required|int|min:1',
             'grocery_list_id' => 'required|exists:groceries_lists,id',
-            'price' => 'required|int|min:1',
+            'price' => 'required|numeric|min:0.01',
         ]);
 
         $grocery = new Grocery($request->only(['name', 'quantity', 'grocery_list_id', 'price']));
