@@ -9,11 +9,11 @@
                 <div class="flex flex-col"><span class="text-gray-900" :class="{ 'line-through': isCompleted }">{{
                     grocery.name
                         }}</span><span class="text-gray-400" :class="{ 'line-through': isCompleted }">Quantity: {{
-                            grocery.quantity }}</span></div>
+                            grocery.quantity }}</span><span v-if="grocery.price > 0" class="text-gray-400">Price: {{  formatPrice(grocery.price) }}</span></div>
             </div>
             <div class="icons text-gray-900 flex items-center justify-end gap-4">
+                <div class="text-lg" v-if="grocery.price > 0">{{ formatPrice(grocery.price * grocery.quantity) }}</div>
                 <TrashIcon class="cursor-pointer" @click="emit('deleteItem', grocery)" />
-
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="size-6 hover-svg">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -27,9 +27,9 @@
 </template>
 
 <script setup>
+import { formatPrice } from '@/helper';
 import { computed } from 'vue';
 import Checkbox from './Checkbox.vue';
-import TrashIcon from './TrashIcon.vue';
 
 const props = defineProps({
     grocery: {

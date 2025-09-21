@@ -20,6 +20,9 @@ import { Head } from '@inertiajs/vue3';
                     <div class="p-6 text-gray-900">
                         You're logged in!
                     </div>
+                    <div class="">
+                        <a class="text-lg p-4 mx-2 my-4 border border-gray-200" :href="route('grocery-list.index')">Grocery Lists</a>
+                    </div>
                 </div>
             </div>
         </div>

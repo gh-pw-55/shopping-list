@@ -7,9 +7,12 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Grocery;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class GroceryListController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(): Response
     {
         $groceryLists = auth()->user()->groceryLists()->get();
@@ -21,9 +24,15 @@ class GroceryListController extends Controller
 
     public function show(int $groceryList): Response
     {
-        $list = GroceryList::with('groceries')->find($groceryList)->first();
-
+        $groceryListModel = GroceryList::findOrFail($groceryList);
         // policy check - user can view
+        $this->authorize('view', $groceryListModel);
+
+        $list = auth()->user()
+            ->groceryLists()
+            ->with('groceries')
+            ->findOrFail($groceryList);
+
         return Inertia::render('GroceryList/Show', [
             'data' => [
                 'groceryList' => $list,
@@ -48,11 +57,14 @@ class GroceryListController extends Controller
         return back()->with('success', 'List added successfully!');
     }
 
-    public function updateOrder(Request $request, GroceryList $groceryList)
+    public function updateOrder(Request $request)
     {
         $newGrocerList = $request->input('order', []);
 
         foreach ($newGrocerList as $key => $groceryItem) {
+            $grocery = Grocery::findOrFail($groceryItem['id']);
+            $this->authorize('update', $grocery);
+
             $groceryItem['position'] = $key + 1;
 
             Grocery::where('id', $groceryItem['id'])->update(['position' => $key + 1]);

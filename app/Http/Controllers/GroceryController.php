@@ -3,34 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Grocery;
+use App\Models\GroceryList;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class GroceryController extends Controller
 {
     use AuthorizesRequests;
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $groceryList = GroceryList::findOrFail($request->grocery_list_id);
+
+        $this->authorize('view', $groceryList);
+
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', function ($attribute, $value, $fail) use ($request) {
                 $exists = Grocery::where('grocery_list_id', $request->grocery_list_id)
                     ->where('name', $value)
@@ -40,31 +30,17 @@ class GroceryController extends Controller
                 }
             }],
             'quantity' => 'required|int|min:1',
-            'grocery_list_id' => 'required|exists:groceries_lists,id'
-
+            'grocery_list_id' => 'required|exists:groceries_lists,id',
+            'price' => 'required|int|min:1',
         ]);
 
-        $grocery = new Grocery($request->only(['name', 'quantity', 'grocery_list_id']));
-        $this->authorize('create', $grocery);
+        $grocery = new Grocery($request->only(['name', 'quantity', 'grocery_list_id', 'price']));
+
+        $grocery->setPrice($request->price);
+        $grocery->setPosition();
 
         $grocery->save();
         return back()->with('success', 'Item added successfully!');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Grocery $grocery)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Grocery $grocery)
-    {
-        //
     }
 
     /**
@@ -72,7 +48,7 @@ class GroceryController extends Controller
      */
     public function update(Request $request, Grocery $grocery)
     {
-        $this->authorize('create', $grocery);
+        $this->authorize('update', $grocery);
 
         // only interested in updating the iscompleted val right now.
         $validation = $request->validate([
@@ -97,10 +73,5 @@ class GroceryController extends Controller
         $grocery->delete();
 
         return back()->with('success', 'Item removed successfully!');
-    }
-
-    public function updateOrder(Type $args): void
-    {
-        
     }
 }

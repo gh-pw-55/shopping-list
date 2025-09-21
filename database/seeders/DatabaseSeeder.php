@@ -35,16 +35,23 @@ class DatabaseSeeder extends Seeder
                 'grocery_list_id' => $shoppingListId,
                 'quantity' => rand(1, 4),
                 'name' => 'Tomatoes',
-            ],
-            [
-                'grocery_list_id' => $shoppingListId,
-                'quantity' => rand(1, 4),
-                'name' => 'Basil',
+                'position' => 1,
+                'price' => 100,
             ],
             [
                 'grocery_list_id' => $shoppingListId,
                 'quantity' => rand(1, 4),
                 'name' => 'Mozerella',
+                'position' => 2,
+                'price' => 250
+            ],
+            [
+                'grocery_list_id' => $shoppingListId,
+                'quantity' => rand(1, 4),
+                'name' => 'Basil',
+                'position' => 3,
+                'is_completed' => 1,
+                'price' => 85,
             ]
         ];
 

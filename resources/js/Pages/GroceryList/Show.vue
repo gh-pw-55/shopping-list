@@ -12,6 +12,8 @@
                             @dragover.prevent />
                     </template>
 
+                    Total Price - {{ formatPrice(getTotalPrice) }}
+
                     <div class="pt-6 text-white">
                         <hr class="text-white bg-white" />
                     </div>
@@ -29,6 +31,11 @@
                                 type="number" min="1" class="mt-1 block w-full" />
                         </div>
 
+                        <div class="py-2">
+                            <InputLabel for="grocery_price" value="Price" />
+                            <TextInput id="grocery_price" v-model="addGroceryItemForm.price"
+                                type="number" class="mt-1 block w-full" />
+                        </div>
 
                         <div class="py-2">
 
@@ -56,6 +63,7 @@ import ListItem from '@/Components//ListItem.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { formatPrice } from '@/helper';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, reactive, ref } from 'vue';
@@ -68,11 +76,11 @@ const props = defineProps({
     }
 })
 
-
 const addGroceryItemForm = useForm({
     name: '',
     quantity: 1,
     grocery_list_id: props.data.groceryList.id,
+    price: 0,
 });
 
 const groceryName = ref(null);
@@ -94,6 +102,14 @@ const disableSave = computed(() => {
 
     return false;
 });
+
+const getTotalPrice = computed(() => {
+    const totalPrice = groceries.data.reduce((accumulator, item) => {
+          return accumulator + (+item.price * +item.quantity);
+    }, 0);
+
+    return totalPrice;
+})
 
 const deleteGroceryItem = (item) => {
     if (confirm('Are you sure you want to remove this item?')) {
